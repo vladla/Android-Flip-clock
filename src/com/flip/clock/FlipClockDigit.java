@@ -21,7 +21,7 @@ public abstract class FlipClockDigit extends RelativeLayout {
 	private Bitmap newBottom;
 	private Rotate3dAnimation toNinety;
 	private Rotate3dAnimation from270;
-	public int currentNum;
+	public int currentNum =0;
 	public int maxDigit;
 	
 	public FlipClockDigit(Context context) {
@@ -43,23 +43,25 @@ public abstract class FlipClockDigit extends RelativeLayout {
 		LayoutInflater inflater = LayoutInflater.from(c);
 		View v = inflater.inflate(R.layout.flip_clock_digit, null);
 		top = (ImageView)v.findViewById(R.id.imageView1);
-		bottom = (ImageView)v.findViewById(R.id.imageView3);
-		rotater = (ImageView)v.findViewById(R.id.imageView2);
+        rotater = (ImageView)v.findViewById(R.id.imageView2);
+
+        bottom = (ImageView)v.findViewById(R.id.imageView3);
 		rotaterBottom = (ImageView)v.findViewById(R.id.imageView4);
 		
 		Bitmap temp = BitmapFactory.decodeResource(getResources(), R.drawable.zero);
 		Bitmap[] splitImages = ImageUtils.splitBitmap(temp, temp.getHeight()/2, temp.getWidth());
 		temp.recycle();
 		prevTop = splitImages[0];
+        rotater.setImageBitmap(splitImages[0]);
 		top.setImageBitmap(splitImages[0]);
 		bottom.setImageBitmap(splitImages[1]);
 		bottom.setVisibility(View.VISIBLE);
 		addView(v);
 		invalidate();
 		
-		toNinety = new Rotate3dAnimation(0,90,25,50,0,false);
+		toNinety = new Rotate3dAnimation(0,90,50,100,0,false);
 		toNinety.setInterpolator(new AccelerateInterpolator());
-		toNinety.setDuration(500);
+		toNinety.setDuration(150);
 		toNinety.setAnimationListener(new AnimationListener(){
 			public void onAnimationEnd(Animation arg0) {
 				prevTop = newTop;
@@ -71,18 +73,18 @@ public abstract class FlipClockDigit extends RelativeLayout {
 			public void onAnimationRepeat(Animation arg0) {}
 
 			public void onAnimationStart(Animation arg0) {
-				rotater.setImageBitmap(prevTop);
 				top.setImageBitmap(newTop);
 				rotater.setVisibility(View.VISIBLE);
 			}
 		});
 		
-		from270 = new Rotate3dAnimation(90,0,25,0,0,false);
+		from270 = new Rotate3dAnimation(90,0,50,0,0,false);
 		from270.setInterpolator(new DecelerateInterpolator());
-		from270.setDuration(500);
+		from270.setDuration(150);
 		from270.setAnimationListener(new AnimationListener(){
 			public void onAnimationEnd(Animation animation) {
-				bottom.setImageBitmap(newBottom);
+                rotater.setImageBitmap(prevTop);
+                bottom.setImageBitmap(newBottom);
 				rotaterBottom.setVisibility(View.INVISIBLE);
 			}
 
@@ -135,6 +137,9 @@ public abstract class FlipClockDigit extends RelativeLayout {
 			newTop = splitImages[0];
 			newBottom = splitImages[1];
 			currentNum = num;
+//            if (currentNum==0) {
+//                newTop = ImageUtils.splitBitmap(splitImages[0], splitImages[0].getHeight()/2, splitImages[0].getWidth())[0];
+//            }
 		}
 	}
 	
@@ -148,4 +153,9 @@ public abstract class FlipClockDigit extends RelativeLayout {
 	}
 	
 	public abstract void onOverflow();
+
+    public void clearCounters() {
+        currentNum=-1;
+        flipDigit();
+    }
 }

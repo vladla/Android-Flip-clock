@@ -1,29 +1,18 @@
 package com.flip.clock;
 
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 
 public class FlipClock extends LinearLayout {
 	
-	private FlipClockDigit HoursFirstDigit;
-	private FlipClockDigit HoursSecondDigit;
-	private FlipClockDigit MinutesFirstDigit;
-	private FlipClockDigit MinutesSecondDigit;
-	private Timer timer;
-	private TimerTask task;
-	private Calendar cal;
-	private int hours;
-	private int minutes;
+	private FlipClockDigit firstDigit;
+	private FlipClockDigit secondDigit;
+	private FlipClockDigit thirdDigit;
+	private FlipClockDigit fourthDigit;
+    private FlipClockDigit fifthDigit;
 	private Handler handy;
 
 	public FlipClock(Context context) {
@@ -45,80 +34,66 @@ public class FlipClock extends LinearLayout {
 		setOrientation(LinearLayout.HORIZONTAL);
 		handy = new Handler(){
 			public void handleMessage(Message m){
-				MinutesSecondDigit.flipDigit();
+				fifthDigit.flipDigit();
 			}
 		};
 		
-		HoursFirstDigit = new FlipClockDigit(c){
+		firstDigit = new FlipClockDigit(c){
 			@Override
 			public void onOverflow() {
-				//this will never happen
+				clearCounters();
 			}
 		};
-		HoursFirstDigit.maxDigit = 2;
-		addView(HoursFirstDigit);
-		HoursSecondDigit = new FlipClockDigit(c){
+		firstDigit.maxDigit = 9;
+		addView(firstDigit);
+
+		secondDigit = new FlipClockDigit(c){
 			@Override
 			public void onOverflow() {
-				HoursFirstDigit.flipDigit();
+				firstDigit.flipDigit();
 			}
 		};
-		HoursSecondDigit.maxDigit = 9;
-		addView(HoursSecondDigit);
-		MinutesFirstDigit = new FlipClockDigit(c){
+		secondDigit.maxDigit = 9;
+		addView(secondDigit);
+
+        thirdDigit = new FlipClockDigit(c){
 			@Override
 			public void onOverflow() {
-				HoursSecondDigit.flipDigit();
+				secondDigit.flipDigit();
 			}
 		};
-		MinutesFirstDigit.maxDigit = 5;
-		addView(MinutesFirstDigit);
-		MinutesSecondDigit = new FlipClockDigit(c){
+		thirdDigit.maxDigit = 9;
+		addView(thirdDigit);
+
+        fourthDigit = new FlipClockDigit(c){
 			@Override
 			public void onOverflow() {
-				MinutesFirstDigit.flipDigit();
+				thirdDigit.flipDigit();
 			}
 		};
-		MinutesSecondDigit.maxDigit = 9;
-		addView(MinutesSecondDigit);
-		
-		cal = Calendar.getInstance();
-		hours = cal.get(Calendar.HOUR_OF_DAY);
-		if (hours < 10){
-			HoursFirstDigit.setNumber(0);
-			HoursSecondDigit.setNumber(hours);
-		}else{
-			String s = String.valueOf(hours);
-			HoursFirstDigit.setNumber(s.charAt(0) - '0');
-			HoursSecondDigit.setNumber(s.charAt(1) - '0');
-		}
-		minutes = cal.get(Calendar.MINUTE);
-		if(minutes < 10){
-			MinutesFirstDigit.setNumber(0);
-			MinutesSecondDigit.setNumber(minutes);
-		}else{
-			String s = String.valueOf(minutes);
-			MinutesFirstDigit.setNumber(s.charAt(0) - '0');
-			MinutesSecondDigit.setNumber(s.charAt(1) - '0');
-		}
-		timer = new Timer();
+		fourthDigit.maxDigit = 9;
+		addView(fourthDigit);
+
+        fifthDigit = new FlipClockDigit(c) {
+            @Override
+            public void onOverflow() {
+                fourthDigit.flipDigit();
+            }
+        };
+        fifthDigit.maxDigit = 9;
+        addView(fifthDigit);
 	}
-	
-	@Override
-	protected void onVisibilityChanged(View changedView, int visibility){
-		if(visibility == View.INVISIBLE || visibility == View.GONE){
-			if(task != null)
-				task.cancel();
-		}else{
-			task = new TimerTask(){
-				@Override
-				public void run() {
-					if(cal.get(Calendar.SECOND) != minutes){
-						handy.sendEmptyMessage(0);
-					}
-				}
-			};
-			timer.schedule(task,0,2000);
-		}
-	}
+
+
+    public void changeNumber() {
+            handy.sendEmptyMessage(0);
+    }
+
+    public void clearCounter() {
+        firstDigit.clearCounters();
+        secondDigit.clearCounters();
+        thirdDigit.clearCounters();
+        fourthDigit.clearCounters();
+        fifthDigit.clearCounters();
+    }
 }
